@@ -60,17 +60,25 @@ impl HttpResponse {
                 content_length = content.len();
                 status = ResponseStatus::OK;
                 accept_ranges = AcceptRanges::Bytes;
+                let text_extensions = vec![
+                    "txt",
+                    "rs",
+                    "lock",
+                    "gitignore",
+                    "png",
+                    "File",
+                    "json",
+                    "TAG",
+                    "toml",
+                    "md",
+                ];
 
                 if let Some(file_type) = infer::get(&content) {
                     content_type = file_type.mime_type().to_string();
-                } else if new_path.extension().and_then(|ext| ext.to_str()) == Some("txt")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("rs")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("lock")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("png")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("json")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("TAG")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("toml")
-                    || new_path.extension().and_then(|ext| ext.to_str()) == Some("md")
+                } else if new_path
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map_or(false, |ext| text_extensions.contains(&ext))
                 {
                     content_type = "text/plain".to_string();
                 } else {
